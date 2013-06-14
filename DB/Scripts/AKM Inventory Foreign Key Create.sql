@@ -1,103 +1,103 @@
 ----------
----------- POLocation
+---------- InvPOLocation
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POLocation_akmstoredata]') AND parent_object_id = OBJECT_ID(N'[dbo].[POLocation]'))
-ALTER TABLE [dbo].[POLocation]  WITH CHECK ADD  CONSTRAINT [FK_POLocation_akmstoredata] FOREIGN KEY([StoreID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOLocation_akmstoredata]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOLocation]'))
+ALTER TABLE [dbo].[InvPOLocation]  WITH CHECK ADD  CONSTRAINT [FK_InvPOLocation_akmstoredata] FOREIGN KEY([StoreID])
 REFERENCES [dbo].[akmstoredata] ([StoreID])
 GO
 
-ALTER TABLE [dbo].[POLocation] CHECK CONSTRAINT [FK_POLocation_akmstoredata]
+ALTER TABLE [dbo].[InvPOLocation] CHECK CONSTRAINT [FK_InvPOLocation_akmstoredata]
 GO
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POLocation_POFrequency]') AND parent_object_id = OBJECT_ID(N'[dbo].[POLocation]'))
-ALTER TABLE [dbo].[POLocation]  WITH CHECK ADD  CONSTRAINT [FK_POLocation_POFrequency] FOREIGN KEY([FrequencyID])
-REFERENCES [dbo].[POFrequency] ([FrequencyID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOLocation_InvPOFrequency]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOLocation]'))
+ALTER TABLE [dbo].[InvPOLocation]  WITH CHECK ADD  CONSTRAINT [FK_InvPOLocation_InvPOFrequency] FOREIGN KEY([FrequencyID])
+REFERENCES [dbo].[InvPOFrequency] ([FrequencyID])
 GO
 
-ALTER TABLE [dbo].[POLocation] CHECK CONSTRAINT [FK_POLocation_POFrequency]
+ALTER TABLE [dbo].[InvPOLocation] CHECK CONSTRAINT [FK_InvPOLocation_InvPOFrequency]
 GO
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POLocation_POLocationTypes]') AND parent_object_id = OBJECT_ID(N'[dbo].[POLocation]'))
-ALTER TABLE [dbo].[POLocation]  WITH CHECK ADD  CONSTRAINT [FK_POLocation_POLocationTypes] FOREIGN KEY([LocationTypeID])
-REFERENCES [dbo].[POLocationTypes] ([LocationTypeID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOLocation_InvPOLocationTypes]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOLocation]'))
+ALTER TABLE [dbo].[InvPOLocation]  WITH CHECK ADD  CONSTRAINT [FK_InvPOLocation_InvPOLocationTypes] FOREIGN KEY([LocationTypeID])
+REFERENCES [dbo].[InvPOLocationTypes] ([LocationTypeID])
 GO
 
-ALTER TABLE [dbo].[POLocation] CHECK CONSTRAINT [FK_POLocation_POLocationTypes]
+ALTER TABLE [dbo].[InvPOLocation] CHECK CONSTRAINT [FK_InvPOLocation_InvPOLocationTypes]
 GO
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POLocation_POPlanograms]') AND parent_object_id = OBJECT_ID(N'[dbo].[POLocation]'))
-ALTER TABLE [dbo].[POLocation]  WITH CHECK ADD  CONSTRAINT [FK_POLocation_POPlanogram] FOREIGN KEY([PlanogramID])
-REFERENCES [dbo].[POPlanogram] ([PlanogramID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOLocation_InvPOPlanogram]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOLocation]'))
+ALTER TABLE [dbo].[InvPOLocation]  WITH CHECK ADD  CONSTRAINT [FK_InvPOLocation_InvPOPlanogram] FOREIGN KEY([PlanogramID])
+REFERENCES [dbo].[InvPOPlanogram] ([PlanogramID])
 GO
 
-ALTER TABLE [dbo].[POLocation] CHECK CONSTRAINT [FK_POLocation_POPlanogram]
+ALTER TABLE [dbo].[InvPOLocation] CHECK CONSTRAINT [FK_InvPOLocation_InvPOPlanogram]
 GO
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POLocation_POProductLines]') AND parent_object_id = OBJECT_ID(N'[dbo].[POLocation]'))
-ALTER TABLE [dbo].[POLocation]  WITH CHECK ADD  CONSTRAINT [FK_POLocation_POProductLines] FOREIGN KEY([ProductLineID])
-REFERENCES [dbo].[POProductLines] ([ProductLineID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOLocation_InvPOProductLines]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOLocation]'))
+ALTER TABLE [dbo].[InvPOLocation]  WITH CHECK ADD  CONSTRAINT [FK_InvPOLocation_InvPOProductLines] FOREIGN KEY([ProductLineID])
+REFERENCES [dbo].[InvPOProductLines] ([ProductLineID])
 GO
 
-ALTER TABLE [dbo].[POLocation] CHECK CONSTRAINT [FK_POLocation_POProductLines]
-GO
-
-----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POLocation_POWarehouseLocation]') AND parent_object_id = OBJECT_ID(N'[dbo].[POLocation]'))
-ALTER TABLE [dbo].[POLocation]  WITH CHECK ADD  CONSTRAINT [FK_POLocation_POWarehouseLocation] FOREIGN KEY([WarehouseID])
-REFERENCES [dbo].[POWarehouseLocation] ([WarehouseID])
-GO
-
-ALTER TABLE [dbo].[POLocation] CHECK CONSTRAINT [FK_POLocation_POWarehouseLocation]
+ALTER TABLE [dbo].[InvPOLocation] CHECK CONSTRAINT [FK_InvPOLocation_InvPOProductLines]
 GO
 
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POLocation_POWarehouseLocation]') AND parent_object_id = OBJECT_ID(N'[dbo].[POLocation]'))
-ALTER TABLE [dbo].[POLocation]  WITH CHECK ADD  CONSTRAINT [FK_POLocation_POWarehouseLocation] FOREIGN KEY([WarehouseID])
-REFERENCES [dbo].[POWarehouseLocation] ([WarehouseID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOLocation_InvPOWarehouseLocation]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOLocation]'))
+ALTER TABLE [dbo].[InvPOLocation]  WITH CHECK ADD  CONSTRAINT [FK_InvPOLocation_InvPOWarehouseLocation] FOREIGN KEY([WarehouseID])
+REFERENCES [dbo].[InvPOWarehouseLocation] ([WarehouseID])
 GO
 
-ALTER TABLE [dbo].[POLocation] CHECK CONSTRAINT [FK_POLocation_POWarehouseLocation]
-GO
-
-----------
-----------  PurchaseOrder
-----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_PurchaseOrder_POLocation]') AND parent_object_id = OBJECT_ID(N'[dbo].[PurchaseOrder]'))
-ALTER TABLE [dbo].[PurchaseOrder]  WITH CHECK ADD  CONSTRAINT [FK_PurchaseOrder_POLocation] FOREIGN KEY([LocationID])
-REFERENCES [dbo].[POLocation] ([LocationID])
-GO
-
-ALTER TABLE [dbo].[PurchaseOrder] CHECK CONSTRAINT [FK_PurchaseOrder_POLocation]
+ALTER TABLE [dbo].[InvPOLocation] CHECK CONSTRAINT [FK_InvPOLocation_InvPOWarehouseLocation]
 GO
 
 ----------
-----------  POItems
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOLocation_InvPOWarehouseLocation]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOLocation]'))
+ALTER TABLE [dbo].[InvPOLocation]  WITH CHECK ADD  CONSTRAINT [FK_InvPOLocation_InvPOWarehouseLocation] FOREIGN KEY([WarehouseID])
+REFERENCES [dbo].[InvPOWarehouseLocation] ([WarehouseID])
+GO
+
+ALTER TABLE [dbo].[InvPOLocation] CHECK CONSTRAINT [FK_InvPOLocation_InvPOWarehouseLocation]
+GO
+
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[POItems]'))
-ALTER TABLE [dbo].[POItems]  WITH CHECK ADD  CONSTRAINT [FK_POItems_item_mapping] FOREIGN KEY([ItemID])
+----------  InvPurchaseOrder
+----------
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPurchaseOrder_InvPOLocation]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPurchaseOrder]'))
+ALTER TABLE [dbo].[InvPurchaseOrder]  WITH CHECK ADD  CONSTRAINT [FK_InvPurchaseOrder_InvPOLocation] FOREIGN KEY([LocationID])
+REFERENCES [dbo].[InvPOLocation] ([LocationID])
+GO
+
+ALTER TABLE [dbo].[InvPurchaseOrder] CHECK CONSTRAINT [FK_InvPurchaseOrder_InvPOLocation]
+GO
+
+----------
+----------  InvPOItems
+----------
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
+ALTER TABLE [dbo].[InvPOItems]  WITH CHECK ADD  CONSTRAINT [FK_InvPOItems_item_mapping] FOREIGN KEY([ItemID])
 REFERENCES [dbo].[item_mapping] ([ITEMID])
 GO
 
-ALTER TABLE [dbo].[POItems] CHECK CONSTRAINT [FK_POItems_item_mapping]
+ALTER TABLE [dbo].[InvPOItems] CHECK CONSTRAINT [FK_InvPOItems_item_mapping]
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[POItems]'))
-ALTER TABLE [dbo].[POItems]  WITH CHECK ADD  CONSTRAINT [FK_POItems_PurchaseOrder] FOREIGN KEY([OrderID])
-REFERENCES [dbo].[PurchaseOrder] ([OrderID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
+ALTER TABLE [dbo].[InvPOItems]  WITH CHECK ADD  CONSTRAINT [FK_InvPOItems_InvPurchaseOrder] FOREIGN KEY([OrderID])
+REFERENCES [dbo].[InvPurchaseOrder] ([OrderID])
 GO
 
-ALTER TABLE [dbo].[POItems] CHECK CONSTRAINT [FK_POItems_PurchaseOrder]
+ALTER TABLE [dbo].[InvPOItems] CHECK CONSTRAINT [FK_InvPOItems_InvPurchaseOrder]
 GO
 
 ----------
-----------  POTracking
+----------  InvPOTracking
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_POTracking_PurchaseOrder]') AND parent_object_id = OBJECT_ID(N'[dbo].[POTracking]'))
-ALTER TABLE [dbo].[POTracking]  WITH CHECK ADD  CONSTRAINT [FK_POTracking_PurchaseOrder] FOREIGN KEY([OrderID])
-REFERENCES [dbo].[PurchaseOrder] ([OrderID])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOTracking_InvPurchaseOrder]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOTracking]'))
+ALTER TABLE [dbo].[InvPOTracking]  WITH CHECK ADD  CONSTRAINT [FK_InvPOTracking_InvPurchaseOrder] FOREIGN KEY([OrderID])
+REFERENCES [dbo].[InvPurchaseOrder] ([OrderID])
 GO
 
-ALTER TABLE [dbo].[POTracking] CHECK CONSTRAINT [FK_POTracking_PurchaseOrder]
+ALTER TABLE [dbo].[InvPOTracking] CHECK CONSTRAINT [FK_InvPOTracking_InvPurchaseOrder]
 GO
 
 ----------

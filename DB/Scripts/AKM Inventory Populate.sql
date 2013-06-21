@@ -116,6 +116,8 @@ INSERT INTO InvItemMinMax (LocationID, ItemID, VendorItemID, Minimum, Maximum)
 		select Kiosk, Item, VendorID, MIN, MAX
 		from MINMAX$
 
+update InvItemMinMax set LocationMaximum = Maximum
+
 --insert into akmstoredata(StoreID, SiteID, ShippingAddressID, Description, AddressLine1, City, State) values (1, 'PCM001SOBC', 1, 'Fashion Show', '123 Strip', 'Las Vegas', 'NV')
 --insert into akmstoredata(StoreID, SiteID, ShippingAddressID, Description, AddressLine1, City, State) values (2, 'PCM001SOBC', 1, 'Boulevard', '456 Boulevard Ln', 'Las Vegas', 'NV')
 --insert into akmstoredata(StoreID, SiteID, ShippingAddressID, Description, AddressLine1, City, State) values (3, 'PRB001NESD', 2, 'UTC', '789 La Jolla Village Dr.', 'San Diego', 'CA')

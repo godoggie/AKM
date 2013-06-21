@@ -77,21 +77,22 @@ execute sp_addtype t_ShortDate,         'SmallDateTime','NULL', 'dbo'
 execute sp_addtype t_Notes,             'Varchar (300)','NULL', 'dbo'
 execute sp_addtype t_ShortDescription,  'Varchar (64)', 'NULL', 'dbo'
 execute sp_addtype t_Hours,             'Decimal(10,2)','NULL', 'dbo'
-execute sp_addtype t_PurchaseOrderNumber,'Varchar(25)','NULL', 'dbo'
+execute sp_addtype t_PurchaseOrderNumber,'Varchar(25)', 'NULL', 'dbo'
 execute sp_addtype t_Attribute,         'Varchar (255)','NULL', 'dbo'
-execute sp_addtype t_SerialNumber,      'Varchar (20)','NULL', 'dbo'
-execute sp_addtype t_VendorID,          'Varchar(20)','NULL', 'dbo'
-execute sp_addtype t_VendorName,        'Varchar(100)','NULL', 'dbo'
-execute sp_addtype t_ItemAttribute,     'Varchar (30)','NULL', 'dbo'
-execute sp_addtype t_MessageTitle,      'Varchar (40)','NULL', 'dbo'
+execute sp_addtype t_SerialNumber,      'Varchar (20)', 'NULL', 'dbo'
+execute sp_addtype t_VendorID,          'Varchar(20)',  'NULL', 'dbo'
+execute sp_addtype t_VendorName,        'Varchar(100)', 'NULL', 'dbo'
+execute sp_addtype t_ItemAttribute,     'Varchar (30)', 'NULL', 'dbo'
+execute sp_addtype t_MessageTitle,      'Varchar (40)', 'NULL', 'dbo'
 execute sp_addtype t_MessageText,       'Varchar (1024)','NULL', 'dbo'
-execute sp_addtype t_ReceiptID,         'Varchar (64)','NULL', 'dbo'
+execute sp_addtype t_ReceiptID,         'Varchar (64)', 'NULL', 'dbo'
 execute sp_addtype t_Amount,            'Decimal(18,5)','NULL', 'dbo'
 execute sp_addtype t_Encrypted,         'Varbinary(8000)', 'NULL', 'dbo'
-execute sp_addtype t_LongSerialNumber,  'Varchar(40)', 'NULL', 'dbo'
-execute sp_addtype t_CustomerID,        'BigInt',     'NULL', 'dbo'
+execute sp_addtype t_LongSerialNumber,  'Varchar(40)',  'NULL', 'dbo'
+execute sp_addtype t_CustomerID,        'BigInt',       'NULL', 'dbo'
 execute sp_addtype t_Planogram,         'Varchar(5)',   'NULL', 'dbo'
-execute sp_addtype t_Date,		        'Date',   'NULL', 'dbo'
+execute sp_addtype t_Date,		        'Date',         'NULL', 'dbo'
+execute sp_addtype t_ItemCategory,      'Varchar(20)',  'NULL', 'dbo'
 go
 
 if exists (select * from sysobjects where id = object_id('Address'))
@@ -157,10 +158,10 @@ begin
 end
 go
 
-if exists (select * from sysobjects where id = object_id('InvItems'))
+if exists (select * from sysobjects where id = object_id('ItemMapping'))
 begin
-   print 'Dropping old version of InvItems'
-   drop table InvItems
+   print 'Dropping old version of ItemMapping'
+   drop table ItemMapping
 end
 go
 
@@ -256,7 +257,7 @@ print 'Creating new version of InvPOItems'
 CREATE TABLE [dbo].[InvPOItems](
 	ItemID						t_ItemID				NOT NULL,
 	OrderID						t_PurchaseOrderNumber	NOT NULL,
-	VendorItemID				t_ItemID				NULL,
+	VendorItemID				t_ItemID				NOT NULL,
 	Description					t_Description			NULL,
 	DateTime					t_TimeStamp				NULL,
 	LocationOnHandItemCount		t_Count					NULL,
@@ -265,11 +266,12 @@ CREATE TABLE [dbo].[InvPOItems](
 	AnticipatedItemSalesCount	t_Count					NULL,
 	MaxLocationItemCount		t_Count					NULL,
 	MaxItemCount				t_Count					NULL,
+	MinItemCount				t_Count					NULL,
 	OrderQuantity				t_Count					NULL,
 	SentQuantity				t_Count					NULL,
 	ReceivedQuantity			t_Count					NULL,
 	StatusCode					t_Code					NULL,
-	constraint InvPOItems_PK primary key nonclustered (ItemID, OrderID)
+	constraint InvPOItems_PK primary key nonclustered (ItemID, OrderID, VendorItemID)
 ) 
 go
 
@@ -406,9 +408,9 @@ CREATE TABLE [dbo].[InvPurchaseOrder](
 	VendorOrderID			t_PurchaseOrderNumber	NULL,
 	LocationID				t_ID					NULL,
 	Description				t_Description			NULL,
-	OrderDate				t_Date					NULL,
-	ShipDate				t_Date					NULL,
-	ReceivedDate			t_Date					NULL,
+	OrderDate				t_Timestamp				NULL,
+	ShipDate				t_Timestamp				NULL,
+	ReceivedDate			t_Timestamp				NULL,
 	ShippingInstructions	t_LongDescription		NULL,
 	StatusCode				t_Code					NULL,
 	constraint InvPurchaseOrder_PK primary key nonclustered (OrderID)
@@ -420,26 +422,30 @@ grant select, insert, update, delete on DBO.InvPurchaseOrder to DW_RELSUSER_role
 go
 
 /*==============================================================*/
-/* Table: InvItems                                              */
+/* Table: ItemMapping                                              */
 /*==============================================================*/
-print 'Creating new version of InvItems'
-CREATE TABLE [dbo].[InvItems](
+print 'Creating new version of ItemMapping'
+CREATE TABLE [dbo].[ItemMapping](
 	ItemID					t_ItemID				NOT NULL,
 	VendorItemID			t_ItemID				NOT NULL,
 	WarehouseItemID			t_ItemID				NULL,
+	MerchandiseHierarchyID	t_MerchandiseID         NULL,
 	Description				t_Description			NULL,
 	ItemType				t_Code					NULL,
+	ItemCategory			t_ItemCategory			NULL,
 	StatusCode				t_Code					NULL,
-	constraint InvItems_PK primary key nonclustered (ItemID, VendorItemID)
+	constraint ItemMapping_PK primary key nonclustered (ItemID, VendorItemID)
 ) 
 go
 
-grant select on DBO.InvItems to DR_RELSUSER_role
-grant select, insert, update, delete on DBO.InvItems to DW_RELSUSER_role
+grant select on DBO.ItemMapping to DR_RELSUSER_role
+grant select, insert, update, delete on DBO.ItemMapping to DW_RELSUSER_role
 go
 
 /*==============================================================*/
 /* Table: InvWarehouseInventory                                 */
+/*    StatusCodes: 0 = Available	                            */
+/*                 1 = Held		                                */
 /*==============================================================*/
 print 'Creating new version of InvWarehouseInventory'
 CREATE TABLE [dbo].[InvWarehouseInventory](
@@ -559,7 +565,7 @@ CREATE VIEW [dbo].InvPurchaseOrderItemView
 AS
 SELECT	PO.LocationID, POL.ExternalLocationID, POL.Description, POL.WarehouseCode, PO.OrderID, PO.VendorOrderID, PO.OrderDate, PO.ShipDate, PO.ReceivedDate, POL.EstimatedShipDays, POL.EstimatedOrderDays, 
 		POL.Frequency as Frequency, POL.PlanogramVersion, POI.ItemID, POI.VendorItemID, POI.Description AS ItemDescription, 
-		POI.LocationOnHandItemCount, POI.InTransitItemCount, POI.AnticipatedItemSalesCount, POI.LastOrderItemSalesCount,
+		POI.LocationOnHandItemCount, POI.InTransitItemCount, POI.AnticipatedItemSalesCount, POI.LastOrderItemSalesCount, POI.MinItemCount, 
 		POI.MaxItemCount, POI.MaxLocationItemCount, POI.OrderQuantity, PO.StatusCode, POI.StatusCode as ItemStatusCode, PO.ShippingInstructions,
 		POL.ProductLineID
 FROM dbo.InvPurchaseOrder AS PO INNER JOIN
@@ -583,11 +589,11 @@ print 'Creating new version of InvItemLocationView'
 go
 CREATE VIEW [dbo].[InvItemLocationView]
 AS
-SELECT	dbo.InvItemMinMax.LocationID, dbo.InvPOLocationView.ExternalLocationID, dbo.InvItems.ItemID, dbo.InvItems.VendorItemID, dbo.InvItems.WarehouseItemID, dbo.InvItems.Description, 
-        dbo.InvItemMinMax.Minimum, dbo.InvItemMinMax.Maximum, dbo.InvItemMinMax.LocationMaximum, dbo.InvItems.ItemType, 
-        dbo.InvItems.StatusCode AS ItemStatusCode, dbo.InvPOLocationView.StoreID, dbo.InvPOLocationView.ProductLineID, InvPOLocationView.StoreType
+SELECT	dbo.InvItemMinMax.LocationID, dbo.InvPOLocationView.ExternalLocationID, dbo.ItemMapping.ItemID, dbo.ItemMapping.VendorItemID, dbo.ItemMapping.WarehouseItemID, dbo.ItemMapping.Description, 
+        dbo.InvItemMinMax.Minimum, dbo.InvItemMinMax.Maximum, dbo.InvItemMinMax.LocationMaximum, dbo.ItemMapping.ItemType, 
+        dbo.ItemMapping.StatusCode AS ItemStatusCode, dbo.InvPOLocationView.StoreID, dbo.InvPOLocationView.ProductLineID, InvPOLocationView.StoreType
 FROM    dbo.InvItemMinMax INNER JOIN
-        dbo.InvItems ON dbo.InvItemMinMax.ItemID = dbo.InvItems.ItemID INNER JOIN
+        dbo.ItemMapping ON dbo.InvItemMinMax.ItemID = dbo.ItemMapping.ItemID INNER JOIN
         dbo.InvPOLocationView ON dbo.InvItemMinMax.LocationID = dbo.InvPOLocationView.LocationID
 GO
 
@@ -630,7 +636,7 @@ print 'Creating csp_InventoryGeneratePOs stored procedure'
 go
 
 create procedure [dbo].csp_InventoryGeneratePOs
-	@PODate t_Date, 
+	@PODate t_Timestamp, 
 	@POType varchar(2), 
 	@POStatus int,
     @ProcessedStatus            t_Code OUTPUT
@@ -740,7 +746,7 @@ begin
     -- Insert eligible items into the PO's we just generated.
 	-- OrderQty = Max - ( (Current Physical Qty + InTransit) + (lesser of.. Current Physical Qty OR (Order Time / Sales Days) x Total Sales)) ) 
 	INSERT INTO InvPOItems (ItemID, OrderID, VendorItemID, Description, DateTime, LocationOnHandItemCount, InTransitItemCount, LastOrderItemSalesCount,
-			AnticipatedItemSalesCount, MaxLocationItemCount, MaxItemCount, OrderQuantity, ReceivedQuantity, StatusCode, SentQuantity)
+			AnticipatedItemSalesCount, MaxLocationItemCount, MaxItemCount, MinItemCount, OrderQuantity, ReceivedQuantity, StatusCode, SentQuantity)
 
  		SELECT StockLedgerAccount.ItemID, OrderID, InvItemLocationView.VendorItemID, InvItemLocationView.Description,  
 			InvPurchaseOrder.OrderDate, StockLedgerAccount.PhysicalCountUnitCount,
@@ -751,7 +757,7 @@ begin
 					AND #LatestPO.ItemID = #AnticipatedSalesCount.ItemID 
 					WHERE StockLedgerAccount.ItemID = #AnticipatedSalesCount.ItemID AND StockLedgerAccount.StoreID = LocationID)
 				 , 0) as AnticipatedItemSalesCount, -- NOTE!! Still need to factor in if Physical Qty is less than Anticipated SALES!! 
-			LocationMaximum, Maximum, 
+			LocationMaximum, Maximum, Minimum,
 			Maximum - PhysicalCountUnitCount as OrderQuantity, 0 as ReceivedQuantity, @POStatus as StatusCode, 0 as SentQuantity
 
 		FROM StockLedgerAccount 
@@ -863,6 +869,341 @@ begin
 end
 go
 
+------------------------------------------------------------------------------
+-- Procedure: csp_InventoryUpdatePODetails
+--
+-- Params:    @ItemID						t_ItemID,
+--	@OrderID					t_PurchaseOrderNumber,
+--	@LocationID					t_ID,
+--	@PODate						t_Timestamp,
+--	@ShipDate					t_Timestamp,
+--	@ReceivedDate				t_Timestamp,
+--	@LocationOnHandItemCount	t_Count,
+--	@InTransitItemCount			t_Count,
+--	@LastOrderItemSalesCount	t_Count,
+--	@AnticipatedItemSalesCount	t_Count,
+--	@OrderQuantity				t_Count,
+--	@SentQuantity				t_Count,
+--	@ReceivedQuantity			t_Count,
+--	@MaxLocationItemCount		t_Count,
+--	@MaxItemCount				t_Count,
+--	@MinItemCount				t_Count,
+--	@StatusCode					t_Count,
+--  @ProcessedStatus            int OUTPUT
+--
+-- Returns:   ProcessedStatus = 1 if Succesfully Update PO, POItems and MinMax
+--            ProcessedStatus = -1 if Erro Generating POs
+--            @@error - SQL error code (0 = SUCCESS, non-0 = Error)
+--
+-- Summary: Update a purchase order and the detail records. Also updates the MIN/Max
+--			values for the specified location
+------------------------------------------------------------------------------
+if exists (select * from sysobjects where id = object_id('csp_InventoryUpdatePODetails'))
+begin
+   print 'Dropping old version of csp_InventoryUpdatePODetails'
+   drop procedure csp_InventoryUpdatePODetails
+end
+go
+
+print 'Creating csp_InventoryUpdatePODetails stored procedure'
+go
+
+create procedure [dbo].csp_InventoryUpdatePODetails
+	@ItemID						t_ItemID,
+	@OrderID					t_PurchaseOrderNumber,
+	@LocationID					t_ID,
+	@PODate						t_Timestamp,
+	@ShipDate					t_Timestamp,
+	@ReceivedDate				t_Timestamp,
+	@LocationOnHandItemCount	t_Count,
+	@InTransitItemCount			t_Count,
+	@LastOrderItemSalesCount	t_Count,
+	@AnticipatedItemSalesCount	t_Count,
+	@OrderQuantity				t_Count,
+	@SentQuantity				t_Count,
+	@ReceivedQuantity			t_Count,
+	@MaxLocationItemCount		t_Count,
+	@MaxItemCount				t_Count,
+	@MinItemCount				t_Count,
+	@StatusCode					t_Count,
+    @ProcessedStatus            int OUTPUT
+as
+begin
+
+	DECLARE @ORDER_DATE			varchar(6) 
+	DECLARE @SHIP_DATE			varchar(6) 
+	DECLARE @RECEIVE_DATE		varchar(6) 
+	SET @SHIP_DATE = NULL 
+	SET @RECEIVE_DATE = NULL 
+
+    DECLARE @LastErr            int
+    DECLARE @NumRows            int
+	DECLARE @ErrDate varchar(30)
+	SET @ErrDate = cast(@PODate as varchar)
+	SET @ProcessedStatus = -1
+
+    set nocount on
+	BEGIN TRANSACTION
+		-- Convert to simple date if not null
+		SET @ORDER_DATE = (SELECT CONVERT(VARCHAR(6), @PODate, 12) AS [YYMMDD]);
+		IF @ShipDate IS NOT NULL Set @SHIP_DATE = (SELECT CONVERT(VARCHAR(6), @ShipDate, 12) AS [YYMMDD]);
+		IF @ReceivedDate IS NOT NULL Set @RECEIVE_DATE = (SELECT CONVERT(VARCHAR(6), @ReceivedDate, 12) AS [YYMMDD]);
+
+		UPDATE InvPOItems SET LocationOnHandItemCount = @LocationOnHandItemCount, 
+							  InTransitItemCount = @InTransitItemCount, 
+							  LastOrderItemSalesCount = @LastOrderItemSalesCount, 
+							  AnticipatedItemSalesCount = @AnticipatedItemSalesCount, 
+							  MaxLocationItemCount = @MaxLocationItemCount, 
+							  MaxItemCount = @MaxItemCount, 
+							  MinItemCount = @MinItemCount, 
+							  OrderQuantity = @OrderQuantity, 
+							  SentQuantity = @SentQuantity, 
+							  ReceivedQuantity = @ReceivedQuantity, 
+							  StatusCode = @StatusCode 
+						WHERE ItemID = @ItemID 
+						  AND OrderID = @OrderID
+
+		SELECT @LastErr = @@error, @NumRows = @@rowcount
+		SET @ProcessedStatus = @NumRows
+		IF ((@LastErr != 0) or (@NumRows = 0))
+		BEGIN
+			raiserror ('Update Error: csp_InventoryUpdatePODetails, UPDATE InvPOItems encountered an error for OrderID=%d ItemID=%s',16, 1, @OrderID, @ItemID) with nowait
+			SET @ProcessedStatus = -1
+			return -1
+		END 
+
+		UPDATE InvPurchaseOrder SET OrderDate = @PODate, 
+									ShipDate = @SHIP_DATE, 
+									ReceivedDate = @RECEIVE_DATE, 
+									--ShippingInstructions = @ShippingInstructions, 
+									StatusCode = @StatusCode 
+							  WHERE LocationID = @LocationID 
+								--AND OrderID = @OrderID
+
+		SELECT @LastErr = @@error, @NumRows = @@rowcount
+		IF ((@LastErr != 0) or (@NumRows = 0))
+		BEGIN
+			raiserror ('Update Error: csp_InventoryUpdatePODetails, UPDATE InvPurchaseOrder encountered an error for OrderID=%d ItemID=%s',16, 1, @OrderID, @ItemID) with nowait
+			SET @ProcessedStatus = -1
+			return -1
+		END 
+
+		UPDATE InvItemMinMax SET LocationMaximum = @MaxLocationItemCount, 
+								 Maximum = @MaxItemCount, 
+								 Minimum = @MinItemCount
+						   WHERE ItemID = @ItemID 
+							 AND LocationID = @LocationID
+
+
+							  SELECT @LastErr = @@error, @NumRows = @@rowcount
+
+		SELECT @LastErr = @@error, @NumRows = @@rowcount
+		IF ((@LastErr != 0) or (@NumRows = 0))
+		BEGIN
+			raiserror ('Update Error: csp_InventoryUpdatePODetails, UPDATE InvItemMinMax encountered an error for OrderID=%d ItemID=%s',16, 1, @OrderID, @ItemID) with nowait
+			SET @ProcessedStatus = -1
+			return -1
+		END 
+
+	COMMIT
+    return 0
+end
+go
+
+------------------------------------------------------------------------------
+-- Procedure: csp_InventoryInsertPO
+--
+-- Params:    
+--	@OrderID					t_PurchaseOrderNumber,
+--	@VendorOrderID				t_PurchaseOrderNumber,
+--	@LocationID					t_ID,
+--	@Description				t_Description,
+--	@PODate						t_Timestamp,
+--	@ShipDate					t_Timestamp,
+--	@ReceivedDate				t_Timestamp,
+--	@ShippingInstructions		t_LongDescription,
+--	@StatusCode					t_Count,
+--  @ProcessedStatus            int OUTPUT
+--
+-- Returns:   ProcessedStatus = 1 if Succesfully Inserted PO
+--            ProcessedStatus = -1 if Erro Inserting PO
+--            @@error - SQL error code (0 = SUCCESS, non-0 = Error)
+--
+-- Summary: Insert a Purchase Order record for the values provided. 
+--	NOTE: the Order and Vendor ID's are created based on the Location.
+------------------------------------------------------------------------------
+if exists (select * from sysobjects where id = object_id('csp_InventoryInsertPO'))
+begin
+   print 'Dropping old version of csp_InventoryInsertPO'
+   drop procedure csp_InventoryInsertPO
+end
+go
+
+print 'Creating csp_InventoryInsertPO stored procedure'
+go
+
+create procedure [dbo].csp_InventoryInsertPO
+	@OrderID					t_PurchaseOrderNumber,
+	@VendorOrderID				t_PurchaseOrderNumber,
+	@LocationID					t_ID,
+	@Description				t_Description,
+	@OrderDate					t_Timestamp,
+	@ShipDate					t_Timestamp,
+	@ReceivedDate				t_Timestamp,
+	@ShippingInstructions		t_LongDescription,
+	@StatusCode					t_Count
+    --@ProcessedStatus            int OUTPUT
+as
+begin
+
+	DECLARE @ORDER_ID			t_PurchaseOrderNumber
+	DECLARE @ORDER_DATE			varchar(6) 
+	DECLARE @SHIP_DATE			varchar(6) 
+	DECLARE @RECEIVE_DATE		varchar(6) 
+	SET @SHIP_DATE = NULL 
+	SET @RECEIVE_DATE = NULL 
+
+    DECLARE @LastErr            int
+    DECLARE @NumRows            int
+	DECLARE @ErrDate varchar(30)
+	SET @ErrDate = cast(@OrderDate as varchar)
+	--SET @ProcessedStatus = -1
+
+    set nocount on
+	-- Convert to simple date if not null
+	SET @ORDER_DATE = (SELECT CONVERT(VARCHAR(6), @OrderDate, 12) AS [YYMMDD]);
+	IF @ShipDate IS NOT NULL Set @SHIP_DATE = (SELECT CONVERT(VARCHAR(6), @ShipDate, 12) AS [YYMMDD]);
+	IF @ReceivedDate IS NOT NULL Set @RECEIVE_DATE = (SELECT CONVERT(VARCHAR(6), @ReceivedDate, 12) AS [YYMMDD]);
+	
+	SET @ORDER_ID = (SELECT DISTINCT 
+						CONCAT((SELECT RIGHT('0000'+ CONVERT(VARCHAR,LocationID),4)), LocationTypeCode, ProductLineCode, WarehouseCode, @ORDER_DATE)
+					 FROM InvPOLocationView 
+					 WHERE LocationID = @LocationID)
+				
+	INSERT INTO InvPurchaseOrder(OrderID, VendorOrderID, LocationID, Description, OrderDate, ShipDate,
+								ReceivedDate, ShippingInstructions, StatusCode)
+	SELECT  
+		@ORDER_ID, 
+		@ORDER_ID, 
+		@LocationID, 
+		@Description, 
+		@ORDER_DATE, 
+		@SHIP_DATE,
+		@RECEIVE_DATE, 
+		@ShippingInstructions, 
+		@StatusCode	
+	--FROM InvPOLocationView 
+	--WHERE LocationID = @LocationID
+
+	SELECT @LastErr = @@error, @NumRows = @@rowcount
+	--SET @ProcessedStatus = @NumRows
+	IF ((@LastErr != 0) or (@NumRows = 0))
+	BEGIN
+		raiserror ('Update Error: csp_InventoryInsertPO, INSERT PO encountered an error for OrderID=%d',16, 1, @OrderID) with nowait
+		SELECT NULL
+	END
+	ELSE
+		SELECT [OrderID]
+			  ,[VendorOrderID]
+			  ,[LocationID]
+			  ,[Description]
+			  ,[OrderDate]
+			  ,[ShipDate]
+			  ,[ReceivedDate]
+			  ,[ShippingInstructions]
+			  ,[StatusCode]
+			FROM InvPurchaseOrder
+			WHERE OrderID = @ORDER_ID
+
+end
+go
+
+------------------------------------------------------------------------------
+-- Procedure: csp_InventoryUpdatePO
+--
+-- Params:    
+--	@OrderID					t_PurchaseOrderNumber,
+--	@VendorOrderID				t_PurchaseOrderNumber,
+--	@LocationID					t_ID,
+--	@Description				t_Description,
+--	@PODate						t_Timestamp,
+--	@ShipDate					t_Timestamp,
+--	@ReceivedDate				t_Timestamp,
+--	@ShippingInstructions		t_LongDescription,
+--	@StatusCode					t_Count,
+--  @ProcessedStatus            int OUTPUT
+--
+-- Returns:   ProcessedStatus = 1 if Succesfully Inserted PO
+--            ProcessedStatus = -1 if Erro Inserting PO
+--            @@error - SQL error code (0 = SUCCESS, non-0 = Error)
+--
+-- Summary: Update a Purchase Order record for the values provided.
+------------------------------------------------------------------------------
+if exists (select * from sysobjects where id = object_id('csp_InventoryUpdatePO'))
+begin
+   print 'Dropping old version of csp_InventoryUpdatePO'
+   drop procedure csp_InventoryUpdatePO
+end
+go
+
+print 'Creating csp_InventoryUpdatePO stored procedure'
+go
+
+create procedure [dbo].csp_InventoryUpdatePO
+	@OrderID					t_PurchaseOrderNumber,
+	@VendorOrderID				t_PurchaseOrderNumber,
+	@LocationID					t_ID,
+	@Description				t_Description,
+	@OrderDate					t_Timestamp,
+	@ShipDate					t_Timestamp,
+	@ReceivedDate				t_Timestamp,
+	@ShippingInstructions		t_LongDescription,
+	@StatusCode					t_Count,
+    @ProcessedStatus            int OUTPUT
+as
+begin
+
+	DECLARE @ORDER_DATE			varchar(6) 
+	DECLARE @SHIP_DATE			varchar(6) 
+	DECLARE @RECEIVE_DATE		varchar(6) 
+	SET @SHIP_DATE = NULL 
+	SET @RECEIVE_DATE = NULL 
+
+    DECLARE @LastErr            int
+    DECLARE @NumRows            int
+	DECLARE @ErrDate varchar(30)
+	SET @ErrDate = cast(@OrderDate as varchar)
+	SET @ProcessedStatus = -1
+
+    set nocount on
+	-- Convert to simple date if not null
+	SET @ORDER_DATE = (SELECT CONVERT(VARCHAR(6), @OrderDate, 12) AS [YYMMDD]);
+	IF @ShipDate IS NOT NULL Set @SHIP_DATE = (SELECT CONVERT(VARCHAR(6), @ShipDate, 12) AS [YYMMDD]);
+	IF @ReceivedDate IS NOT NULL Set @RECEIVE_DATE = (SELECT CONVERT(VARCHAR(6), @ReceivedDate, 12) AS [YYMMDD]);
+
+
+	UPDATE InvPurchaseOrder
+		SET VendorOrderID = @VendorOrderID, 
+			LocationID = @LocationID, 
+			Description = @Description, 
+			OrderDate = @ORDER_DATE, 
+			ShipDate = @SHIP_DATE,
+			ReceivedDate = @RECEIVE_DATE,
+			ShippingInstructions = @ShippingInstructions,
+			StatusCode = @StatusCode
+	  WHERE OrderID = @OrderID
+
+	SELECT @LastErr = @@error, @NumRows = @@rowcount
+	SET @ProcessedStatus = @NumRows
+	IF ((@LastErr != 0) or (@NumRows = 0))
+	BEGIN
+		raiserror ('Update Error: csp_InventoryUpdatePO, Update PO encountered an error for OrderID=%d',16, 1, @OrderID) with nowait
+		SET @ProcessedStatus = -1
+		return -1
+	END 
+    return 0
+end
+go
 ------------------------------------------------------------------------------
 -- Procedure: csp_InventoryRemovePOs
 --
@@ -984,3 +1325,5 @@ begin
     return @NumRows
 end
 go
+
+

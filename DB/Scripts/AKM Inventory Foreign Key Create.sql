@@ -73,15 +73,16 @@ GO
 ----------
 ----------  InvPOItems
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
-ALTER TABLE [dbo].[InvPOItems]  WITH CHECK ADD  CONSTRAINT [FK_InvPOItems_item_mapping] FOREIGN KEY([ItemID])
-REFERENCES [dbo].[item_mapping] ([ITEMID])
+/*
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_ItemMapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
+ALTER TABLE [dbo].[InvPOItems]  WITH CHECK ADD  CONSTRAINT [FK_InvPOItems_ItemMapping] FOREIGN KEY([ItemID])
+REFERENCES [dbo].[ItemMapping] ([ITEMID])
 GO
 
-ALTER TABLE [dbo].[InvPOItems] CHECK CONSTRAINT [FK_InvPOItems_item_mapping]
+ALTER TABLE [dbo].[InvPOItems] CHECK CONSTRAINT [FK_InvPOItems_ItemMapping]
 GO
-
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
+*/
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_InvPurchaseOrder]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
 ALTER TABLE [dbo].[InvPOItems]  WITH CHECK ADD  CONSTRAINT [FK_InvPOItems_InvPurchaseOrder] FOREIGN KEY([OrderID])
 REFERENCES [dbo].[InvPurchaseOrder] ([OrderID])
 GO

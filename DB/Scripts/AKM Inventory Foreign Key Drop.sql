@@ -33,10 +33,10 @@ GO
 ----------
 ----------  InvPOItems
 ----------
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
-ALTER TABLE [dbo].[InvPOItems] DROP CONSTRAINT [FK_InvPOItems_item_mapping]
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_ItemMapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
+ALTER TABLE [dbo].[InvPOItems] DROP CONSTRAINT [FK_InvPOItems_ItemMapping]
 GO
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_item_mapping]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOItems_InvPurchaseOrder]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOItems]'))
 ALTER TABLE [dbo].[InvPOItems] DROP CONSTRAINT [FK_InvPOItems_InvPurchaseOrder]
 GO
 
@@ -46,3 +46,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_InvPOTracking_InvPurchaseOrder]') AND parent_object_id = OBJECT_ID(N'[dbo].[InvPOTracking]'))
 ALTER TABLE [dbo].[InvPOTracking] DROP CONSTRAINT [FK_InvPOTracking_InvPurchaseOrder]
 GO
+
+--SELECT * 
+--FROM sys.foreign_keys
+--WHERE referenced_object_id = object_id('InvPurchaseOrder')
